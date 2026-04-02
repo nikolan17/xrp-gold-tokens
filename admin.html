@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>XRP Gold Tokens — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --g1: #FFD700; --g2: #D4AF37; --g3: #B8960C;
+  --red: #FF1744;
+  --f-display: 'Bebas Neue', sans-serif;
+  --f-mono: 'Share Tech Mono', monospace;
+}
+body {
+  background: #050400;
+  color: #fff;
+  font-family: var(--f-mono);
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+
+/* ── Login screen ── */
+#login-screen, #admin-screen { width: 100%; max-width: 480px; }
+#admin-screen { max-width: 640px; display: none; }
+
+.panel {
+  background: #0a0800;
+  border: 1px solid rgba(212,175,55,.25);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 60px rgba(212,175,55,.10), 0 32px 80px rgba(0,0,0,.7);
+}
+.panel-top {
+  height: 2px;
+  background: linear-gradient(90deg, transparent 5%, var(--g3) 35%, var(--g1) 50%, var(--g3) 65%, transparent 95%);
+}
+.panel-body { padding: 36px 32px 32px; }
+
+.logo {
+  font-family: var(--f-display);
+  font-size: 28px; letter-spacing: 4px;
+  color: var(--g1);
+  text-shadow: 0 0 20px rgba(255,215,0,.45);
+  text-align: center; margin-bottom: 6px;
+}
+.logo-sub {
+  font-size: 10px; letter-spacing: 5px;
+  color: rgba(212,175,55,.45);
+  text-align: center; text-transform: uppercase;
+  margin-bottom: 32px;
+}
+
+label {
+  display: block; font-size: 9px; letter-spacing: 4px;
+  color: rgba(212,175,55,.55); text-transform: uppercase;
+  margin-bottom: 8px;
+}
+input {
+  width: 100%; padding: 13px 16px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(212,175,55,.20);
+  border-radius: 6px; color: #fff;
+  font-family: var(--f-mono); font-size: 15px;
+  outline: none; transition: border-color .2s, box-shadow .2s;
+  margin-bottom: 20px;
+}
+input:focus {
+  border-color: rgba(212,175,55,.60);
+  box-shadow: 0 0 0 3px rgba(212,175,55,.08);
+}
+input::placeholder { color: rgba(255,255,255,.18); }
+
+.btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #7B5500, var(--g3), var(--g1), var(--g2), var(--g3), #7B5500);
+  background-size: 300% 100%;
+  border: none; border-radius: 6px;
+  font-family: var(--f-display); font-size: 16px; letter-spacing: 3px;
+  color: #000; cursor: pointer; text-transform: uppercase;
+  animation: shimmer 4s ease-in-out infinite;
+  transition: transform .2s, box-shadow .2s;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212,175,55,.35); }
+.btn:active { transform: translateY(0); }
+.btn-danger {
+  background: linear-gradient(135deg, #5B0000, var(--red), #FF5252, var(--red), #5B0000);
+  background-size: 300% 100%;
+  color: #fff; font-size: 12px; padding: 10px;
+  margin-top: 0;
+}
+@keyframes shimmer { 0%,100%{background-position:0%50%} 50%{background-position:100%50%} }
+
+.error-msg {
+  background: rgba(255,23,68,.10);
+  border: 1px solid rgba(255,23,68,.30);
+  border-radius: 6px; padding: 12px 16px;
+  font-size: 12px; color: #FF6B6B;
+  margin-bottom: 20px; display: none;
+}
+.success-msg {
+  background: rgba(0,230,118,.08);
+  border: 1px solid rgba(0,230,118,.25);
+  border-radius: 6px; padding: 12px 16px;
+  font-size: 12px; color: #00E676;
+  margin-bottom: 20px; display: none;
+}
+
+/* ── Admin panel ── */
+.section-title {
+  font-family: var(--f-display); font-size: 14px; letter-spacing: 5px;
+  color: rgba(212,175,55,.5); text-transform: uppercase;
+  margin-bottom: 18px; padding-bottom: 10px;
+  border-bottom: 1px solid rgba(212,175,55,.10);
+}
+.form-row { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; margin-bottom: 12px; }
+.form-row input { margin-bottom: 0; }
+
+.routes-list { margin-bottom: 28px; }
+.route-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(212,175,55,.10);
+  border-radius: 6px; margin-bottom: 8px;
+  gap: 12px;
+}
+.route-code {
+  font-family: var(--f-display); font-size: 18px; letter-spacing: 2px;
+  color: var(--g1); min-width: 48px;
+}
+.route-url {
+  font-size: 11px; color: rgba(255,255,255,.40);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  flex: 1;
+}
+.route-del {
+  background: rgba(255,23,68,.12); border: 1px solid rgba(255,23,68,.25);
+  color: var(--red); border-radius: 4px; padding: 4px 10px;
+  font-family: var(--f-display); font-size: 12px; letter-spacing: 1px;
+  cursor: pointer; flex-shrink: 0; transition: background .2s;
+}
+.route-del:hover { background: rgba(255,23,68,.25); }
+
+.deploy-note {
+  font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,.20);
+  text-align: center; margin-top: 20px;
+}
+.deploy-note span { color: rgba(212,175,55,.50); }
+
+.spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(0,0,0,.3); border-top-color: #000;
+  border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.logout {
+  font-size: 9px; letter-spacing: 3px; color: rgba(255,255,255,.2);
+  text-transform: uppercase; cursor: pointer; text-align: right;
+  margin-top: 16px; display: block;
+}
+.logout:hover { color: rgba(255,255,255,.5); }
+</style>
+</head>
+<body>
+
+<!-- ── Login ── -->
+<div id="login-screen">
+  <div class="panel">
+    <div class="panel-top"></div>
+    <div class="panel-body">
+      <div class="logo">XRP Gold Tokens</div>
+      <div class="logo-sub">Affiliate Admin Panel</div>
+      <div class="error-msg" id="login-error"></div>
+      <label>Password</label>
+      <input type="password" id="password-input" placeholder="Enter admin password" />
+      <button class="btn" onclick="login()">Enter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Admin ── -->
+<div id="admin-screen">
+  <div class="panel">
+    <div class="panel-top"></div>
+    <div class="panel-body">
+      <div class="logo">XRP Gold Tokens</div>
+      <div class="logo-sub">Affiliate Manager</div>
+
+      <!-- Current routes -->
+      <div class="section-title">Active Routes</div>
+      <div class="routes-list" id="routes-list">Loading...</div>
+
+      <!-- Add new route -->
+      <div class="section-title">Add New Route</div>
+      <div class="error-msg" id="add-error"></div>
+      <div class="success-msg" id="add-success"></div>
+      <div class="form-row">
+        <div>
+          <label>Route Code</label>
+          <input type="text" id="new-route" placeholder="e.g. XY" maxlength="10" />
+        </div>
+        <div>
+          <label>Destination URL</label>
+          <input type="text" id="new-url" placeholder="https://..." />
+        </div>
+      </div>
+      <button class="btn" id="add-btn" onclick="addRoute()">Add Route & Deploy</button>
+
+      <div class="deploy-note">Changes deploy to <span>xrpgoldtokens.com</span> in ~30 seconds</div>
+      <span class="logout" onclick="logout()">Log out</span>
+    </div>
+  </div>
+</div>
+
+<script>
+let savedPassword = '';
+let currentRoutes = {};
+
+function login() {
+  const pw = document.getElementById('password-input').value;
+  if (!pw) return;
+  savedPassword = pw;
+  loadRoutes();
+}
+
+document.getElementById('password-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') login();
+});
+
+async function loadRoutes() {
+  try {
+    const res = await fetch('/api/get-routes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: savedPassword })
+    });
+    const data = await res.json();
+    if (res.status === 401) {
+      const err = document.getElementById('login-error');
+      err.textContent = 'Wrong password. Try again.';
+      err.style.display = 'block';
+      savedPassword = '';
+      return;
+    }
+    currentRoutes = data.routes;
+    renderRoutes();
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+  } catch(e) {
+    const err = document.getElementById('login-error');
+    err.textContent = 'Connection error. Try again.';
+    err.style.display = 'block';
+  }
+}
+
+function renderRoutes() {
+  const list = document.getElementById('routes-list');
+  if (!Object.keys(currentRoutes).length) {
+    list.innerHTML = '<div style="color:rgba(255,255,255,.25);font-size:12px;">No routes yet.</div>';
+    return;
+  }
+  list.innerHTML = Object.entries(currentRoutes).map(([code, url]) => `
+    <div class="route-item">
+      <span class="route-code">/${code}</span>
+      <span class="route-url" title="${url}">${url}</span>
+      <button class="route-del" onclick="deleteRoute('${code}')">Remove</button>
+    </div>
+  `).join('');
+}
+
+async function addRoute() {
+  const route = document.getElementById('new-route').value.trim().toUpperCase();
+  const url   = document.getElementById('new-url').value.trim();
+  const errEl = document.getElementById('add-error');
+  const sucEl = document.getElementById('add-success');
+  errEl.style.display = 'none';
+  sucEl.style.display = 'none';
+
+  if (!route || !url) { errEl.textContent = 'Both fields are required.'; errEl.style.display = 'block'; return; }
+  if (!/^[A-Z0-9]+$/.test(route)) { errEl.textContent = 'Route code must be letters/numbers only.'; errEl.style.display = 'block'; return; }
+  if (!url.startsWith('http')) { errEl.textContent = 'URL must start with http.'; errEl.style.display = 'block'; return; }
+
+  const btn = document.getElementById('add-btn');
+  btn.innerHTML = '<span class="spinner"></span> Deploying...';
+  btn.disabled = true;
+
+  const res = await fetch('/api/add-route', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: savedPassword, route, url })
+  });
+  const data = await res.json();
+
+  btn.innerHTML = 'Add Route & Deploy';
+  btn.disabled = false;
+
+  if (!res.ok) { errEl.textContent = data.error || 'Something went wrong.'; errEl.style.display = 'block'; return; }
+
+  currentRoutes = data.routes;
+  renderRoutes();
+  document.getElementById('new-route').value = '';
+  document.getElementById('new-url').value = '';
+  sucEl.textContent = `✓ Route /${route} added! Site deploying now — live in ~30 seconds.`;
+  sucEl.style.display = 'block';
+  setTimeout(() => sucEl.style.display = 'none', 6000);
+}
+
+async function deleteRoute(route) {
+  if (!confirm(`Remove route /${route}?`)) return;
+  const res = await fetch('/api/delete-route', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: savedPassword, route })
+  });
+  const data = await res.json();
+  if (!res.ok) { alert(data.error || 'Failed to remove route.'); return; }
+  currentRoutes = data.routes;
+  renderRoutes();
+}
+
+function logout() {
+  savedPassword = '';
+  document.getElementById('admin-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('password-input').value = '';
+}
+</script>
+</body>
+</html>
